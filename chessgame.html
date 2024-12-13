@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Chess Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 60px);
+            grid-template-rows: repeat(8, 60px);
+            border: 4px solid #333;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .cell:nth-child(even) {
+            background-color: #d1d1d1;
+        }
+
+        .cell:nth-child(odd) {
+            background-color: #4a4a4a;
+        }
+
+        .piece {
+            font-size: 36px;
+            cursor: grab;
+        }
+
+        .piece:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+    <div class="chess-board" id="board"></div>
+
+    <script>
+        const boardElement = document.getElementById('board');
+
+        // Chessboard layout
+        const initialBoard = [
+            '♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜',
+            '♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '', '', '', '', '', '', '', '',
+            '♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙',
+            '♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖'
+        ];
+
+        let draggedPiece = null;
+
+        function createChessBoard() {
+            boardElement.innerHTML = ''; // Clear existing board
+            initialBoard.forEach((piece, index) => {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = index;
+
+                if (piece) {
+                    const pieceElement = document.createElement('div');
+                    pieceElement.textContent = piece;
+                    pieceElement.classList.add('piece');
+                    pieceElement.draggable = true;
+
+                    pieceElement.addEventListener('dragstart', handleDragStart);
+                    pieceElement.addEventListener('dragend', handleDragEnd);
+
+                    cell.appendChild(pieceElement);
+                }
+
+                cell.addEventListener('dragover', handleDragOver);
+                cell.addEventListener('drop', handleDrop);
+
+                boardElement.appendChild(cell);
+            });
+        }
+
+        function handleDragStart(event) {
+            draggedPiece = event.target;
+            setTimeout(() => draggedPiece.classList.add('hidden'), 0);
+        }
+
+        function handleDragEnd() {
+            draggedPiece.classList.remove('hidden');
+            draggedPiece = null;
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault(); // Allow drop
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const targetCell = event.target;
+            
+            // Only drop into empty cells or replace pieces
+            if (targetCell.classList.contains('cell') && !targetCell.firstChild) {
+                targetCell.appendChild(draggedPiece);
+            } else if (targetCell.classList.contains('piece')) {
+                const parentCell = targetCell.parentElement;
+                parentCell.appendChild(draggedPiece);
+            }
+        }
+
+        // Initialize the chessboard
+        createChessBoard();
+    </script>
+</body>
+</html>
